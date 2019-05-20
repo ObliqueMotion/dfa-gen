@@ -60,6 +60,7 @@ where
     }
 
     pub fn recognize(&mut self, inputs: impl Iterator<Item = T>) -> Evaluation {
+        self.restart();
         for transition in inputs {
             self.next(&transition);
             if self.dead_states.get(&self.current).is_some() {
@@ -70,11 +71,6 @@ where
             }
         }
         self.eval()
-    }
-
-    pub fn recognize_new(&mut self, inputs: impl Iterator<Item = T>) -> Evaluation {
-        self.restart();
-        self.recognize(inputs)
     }
 }
 
