@@ -11,7 +11,6 @@ fn main() {
         .add_state(&q1)
         .add_state(&q2)
         .add_state(&q3)
-        .mark_dead_state(&q3)
         .mark_goal_state(&q3)
         .mark_start_state(&q0)
         .add_transition(&q0, &'a', &q0)
@@ -23,4 +22,11 @@ fn main() {
         .build();
 
     dbg!(&dfa);
+
+    dbg!(dfa.recognize("".chars()));
+    dbg!(dfa.recognize("abba".chars()));
+    dbg!(dfa.recognize("ababba".chars()));
+    dbg!(dfa.recognize("aaaaabbbbba".chars()));
+    dbg!(dfa.recognize("aaaaabbbbbab".chars()));
+    dbg!(dfa.recognize("babaaaaabbbbba".chars()));
 }
