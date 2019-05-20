@@ -90,7 +90,7 @@ where
 {
     pub fn add_state(mut self, state: &S) -> Self {
         if !self.dfa.transitions.is_empty() {
-            panic!("Failed to add state. No states may be added after any transition is added. Try moving this higher in the builder.");
+            panic!("DFABuilder::add_state(): No states may be added after any transition is added. Try moving this higher in the builder.");
         }
         self.dfa.states.insert(Rc::new(state.clone()));
         self
@@ -100,11 +100,11 @@ where
         match self.dfa.states.get(state) {
             Some(state) => {
                 if let Some(state) = self.dfa.dead_states.get(state) {
-                    panic!("Invalid Accept State: Attempted to mark dead state ({:?}) as goal state.", state);
+                    panic!("DFABuilder::mark_accept_state(): Attempted to mark dead state ({:?}) as goal state.", state);
                 }
                 self.dfa.accept_states.insert(state.clone());
             }
-            None => panic!("Invalid Accept State: Attempted to mark non-existent state ({:?}) as a accept state.", state),
+            None => panic!("DFABuilder::mark_accept_state(): Attempted to mark non-existent state ({:?}) as a accept state.", state),
         }
         self
     }
@@ -114,7 +114,7 @@ where
             Some(state) => {
                 if let Some(state) = self.dfa.dead_states.get(state) {
                     panic!(
-                        "Invalid Goal State: Attempted to mark dead state ({:?}) as goal state.",
+                        "DFABuilder::mark_goal_state(): Attempted to mark dead state ({:?}) as goal state.",
                         state
                     );
                 }
@@ -122,7 +122,7 @@ where
                 self.dfa.goal_states.insert(state.clone());
             }
             None => panic!(
-                "Invalid Goal State: Attempted to mark non-existent state ({:?}) as goal state.",
+                "DFABuilder::mark_goal_state(): Attempted to mark non-existent state ({:?}) as goal state.",
                 state
             ),
         }
@@ -133,12 +133,12 @@ where
         match self.dfa.states.get(state) {
             Some(state) => {
                 if let Some(state) = self.dfa.accept_states.get(state) {
-                    panic!("Invalid Dead State: Attempted to mark accept state ({:?}) as a dead state.", state);
+                    panic!("DFABuilder::mark_dead_state(): Attempted to mark accept state ({:?}) as a dead state.", state);
                 }
                 self.dfa.dead_states.insert(state.clone());
             }
             None => panic!(
-                "Invalid Dead State: Attempted to mark non-existent state ({:?}) as dead state.",
+                "DFABuilder::mark_dead_state(): Attempted to mark non-existent state ({:?}) as dead state.",
                 state
             ),
         }
@@ -152,7 +152,7 @@ where
                 self.dfa.current = state.clone();
             }
             None => panic!(
-                "Invalid Start State: Attempted to mark non-existent state ({:?}) as start state.",
+                "DFABuilder::mark_start_state(): Attempted to mark non-existent state ({:?}) as start state.",
                 state
             ),
         }
@@ -161,10 +161,10 @@ where
 
     pub fn add_transition(mut self, from: &S, transition: &T, to: &S) -> Self {
         if let Some(state) = self.dfa.dead_states.get(from) {
-            panic!("Invalid Transition: From state ({:?}) is a dead state and cannot have transitions.", state);
+            panic!("DFABuilder::add_transition(): From state ({:?}) is a dead state and cannot have transitions.", state);
         }
         if let Some(state) = self.dfa.goal_states.get(from) {
-            panic!("Invalid Transition: From state ({:?}) is a goal state and cannot have transitions.", state);
+            panic!("DFABuilder::add_transition(): From state ({:?}) is a goal state and cannot have transitions.", state);
         }
         match (self.dfa.states.get(from), self.dfa.states.get(to)) {
             (Some(from), Some(to)) => {
@@ -182,11 +182,11 @@ where
                     });
             }
             (None, _) => panic!(
-                "Invalid Transition: From state ({:?}) does not exist in this DFA.",
+                "DFABuilder::add_transition(): From state ({:?}) does not exist in this DFA.",
                 from
             ),
             (_, None) => panic!(
-                "Invalid Transition: To state ({:?}) does not exist in this DFA.",
+                "DFABuilder::add_transition(): To state ({:?}) does not exist in this DFA.",
                 to
             ),
         }
@@ -196,17 +196,17 @@ where
     pub fn build(self) -> DFA<S, T> {
         if self.dfa.start.is_none() {
             panic!(
-                "Failed to Build DFA: No start state was defined. Try using mark_start_state()."
+                "DFABuilder::build(): No start state was defined. Try using mark_start_state()."
             );
         }
         if self.dfa.accept_states.is_empty() {
-            panic!("Failed to Build DFA: No accept states were defined. try using mark_accept_state().");
+            panic!("DFABuilder::build(): No accept states were defined. try using mark_accept_state().");
         }
         let transition_states =
             self.dfa.states.len() - self.dfa.dead_states.len() - self.dfa.goal_states.len();
         for state_pairs in self.dfa.transitions.values() {
             if state_pairs.keys().count() < transition_states {
-                panic!("Failed to Build DFA: Not all transition states are fully connectet.");
+                panic!("DFABuilder::build(): Not all transition states have a complete set of output edges.");
             }
         }
         self.dfa
