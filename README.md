@@ -3,62 +3,89 @@ A Generic Deterministic Finite-State Automaton Generator Written in Rust
 
 ## Example
 
+![logo](images/example.png)
+
 ```rust
-use dfagen::{DFABuilder, DFA};
+use dfagen::{bits_of, DFABuilder, DFA};
 
 fn main() {
-    let no_one = String::from("1 has not been seen.");
-    let has_one = String::from("1 has been seen.");
+    let q0 = String::from("q0");
+    let q1 = String::from("q1");
+    let q2 = String::from("q2");
+    let dead = String::from("DEAD");
 
     let mut dfa = DFABuilder::default()
-        .add_state(&no_one)
-        .add_state(&has_one)
-        .mark_start_state(&no_one)
-        .mark_goal_state(&has_one)
-        .add_transition(&no_one, &'0', &no_one)
-        .add_transition(&no_one, &'1', &has_one)
+        .add_state(&q0)
+        .add_state(&q1)
+        .add_state(&q2)
+        .add_state(&dead)
+        .mark_start_state(&q0)
+        .mark_accept_state(&q0)
+        .mark_accept_state(&q1)
+        .mark_dead_state(&dead)
+        .add_transition(&q0, &'a', &q1)
+        .add_transition(&q0, &'b', &dead)
+        .add_transition(&q1, &'a', &q1)
+        .add_transition(&q1, &'b', &q2)
+        .add_transition(&q2, &'a', &q1)
+        .add_transition(&q2, &'b', &q2)
         .build();
 
     dbg!(&dfa);
-    dbg!(dfa.recognize_new("000".chars()));
-    dbg!(dfa.recognize_new("100".chars()));
-    dbg!(dfa.recognize_new("010".chars()));
-    dbg!(dfa.recognize_new("001".chars()));
-    dbg!(dfa.recognize_new("111".chars()));
+
+    dbg!(dfa.recognize("".chars()));
+    dbg!(dfa.recognize("a".chars()));
+    dbg!(dfa.recognize("b".chars()));
+    dbg!(dfa.recognize("aa".chars()));
+    dbg!(dfa.recognize("ab".chars()));
+    dbg!(dfa.recognize("abb".chars()));
+    dbg!(dfa.recognize("aba".chars()));
+    dbg!(dfa.recognize("abba".chars()));
+    dbg!(dfa.recognize("babba".chars()));
 }
 ```
 
 **Output**
 ```
-[src/main.rs:16] &dfa = DFA {
+[src/main.rs:26] &dfa = DFA {
     states: {
-        "1 has been seen.",
-        "1 has not been seen."
+        "q0",
+        "q1",
+        "q2",
+        "DEAD"
     },
     accept_states: {
-        "1 has been seen."
+        "q0"
+        "q1",
     },
-    dead_states: {},
-    goal_states: {
-        "1 has been seen."
+    dead_states: {
+        "DEAD"
     },
+    goal_states: {},
     transitions: {
-        '0': {
-            "1 has not been seen.": "1 has not been seen."
+        'a': {
+            "q0": "q1"
+            "q1": "q1",
+            "q2": "q1",
         },
-        '1': {
-            "1 has not been seen.": "1 has been seen."
+        'b': {
+            "q0": "DEAD"
+            "q1": "q2",
+            "q2": "q2",
         }
     },
     start: Some(
-        "1 has not been seen."
+        "q0"
     ),
-    current: "1 has not been seen."
+    current: "q0"
 }
-[src/main.rs:17] dfa.recognize_new("000".chars()) = Reject
-[src/main.rs:18] dfa.recognize_new("100".chars()) = Accept
-[src/main.rs:19] dfa.recognize_new("010".chars()) = Accept
-[src/main.rs:20] dfa.recognize_new("001".chars()) = Accept
-[src/main.rs:21] dfa.recognize_new("111".chars()) = Accept
-
+[src/main.rs:28] dfa.recognize("".chars()) = Accept
+[src/main.rs:29] dfa.recognize("a".chars()) = Accept
+[src/main.rs:30] dfa.recognize("b".chars()) = Reject
+[src/main.rs:31] dfa.recognize("aa".chars()) = Accept
+[src/main.rs:32] dfa.recognize("ab".chars()) = Reject
+[src/main.rs:33] dfa.recognize("abb".chars()) = Reject
+[src/main.rs:34] dfa.recognize("aba".chars()) = Accept
+[src/main.rs:35] dfa.recognize("abba".chars()) = Accept
+[src/main.rs:36] dfa.recognize("babba".chars()) = Reject
 ```
