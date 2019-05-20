@@ -1,36 +1,38 @@
 use dfagen::{bits_of, DFABuilder, DFA};
 
 fn main() {
-    let no_one = String::from("1 has not been seen.");
-    let has_one = String::from("1 has been seen.");
+    let q0 = String::from("q0");
+    let q1 = String::from("q1");
+    let q2 = String::from("q2");
+    let dead = String::from("DEAD");
 
     let mut dfa = DFABuilder::default()
-        .add_state(&no_one)
-        .add_state(&has_one)
-        .mark_start_state(&no_one)
-        .mark_goal_state(&has_one)
-        .add_transition(&no_one, &'0', &no_one)
-        .add_transition(&no_one, &'1', &has_one)
+        .add_state(&q0)
+        .add_state(&q1)
+        .add_state(&q2)
+        .add_state(&dead)
+        .mark_start_state(&q0)
+        .mark_accept_state(&q0)
+        .mark_accept_state(&q1)
+        .mark_dead_state(&dead)
+        .add_transition(&q0, &'a', &q1)
+        .add_transition(&q0, &'b', &dead)
+        .add_transition(&q1, &'a', &q1)
+        .add_transition(&q1, &'b', &q2)
+        .add_transition(&q2, &'a', &q1)
+        .add_transition(&q2, &'b', &q2)
         .build();
 
     dbg!(&dfa);
-    dbg!(dfa.recognize_new("000".chars()));
-    dbg!(dfa.recognize_new("100".chars()));
-    dbg!(dfa.recognize_new("010".chars()));
-    dbg!(dfa.recognize_new("001".chars()));
-    dbg!(dfa.recognize_new("111".chars()));
 
-    dfa.restart();
+    dbg!(dfa.recognize("".chars()));
+    dbg!(dfa.recognize("a".chars()));
+    dbg!(dfa.recognize("b".chars()));
+    dbg!(dfa.recognize("aa".chars()));
+    dbg!(dfa.recognize("ab".chars()));
+    dbg!(dfa.recognize("abb".chars()));
+    dbg!(dfa.recognize("aba".chars()));
+    dbg!(dfa.recognize("abba".chars()));
+    dbg!(dfa.recognize("babba".chars()));
 
-    dfa.next(&'0');
-    dbg!(dfa.eval());
-
-    dfa.next(&'0');
-    dbg!(dfa.eval());
-
-    dfa.next(&'1');
-    dbg!(dfa.eval());
-
-    dfa.next(&'0');
-    dbg!(dfa.eval());
 }
