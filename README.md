@@ -6,7 +6,7 @@ A Generic Deterministic Finite-State Automaton Generator Written in Rust
 ![logo](images/example.png)
 
 ```rust
-use dfagen::{bits_of, DFABuilder, DFA};
+use dfagen::{DFABuilder, DFA};
 
 fn main() {
     let q0 = String::from("q0");
