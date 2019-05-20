@@ -100,11 +100,11 @@ where
         match self.dfa.states.get(state) {
             Some(state) => {
                 if let Some(state) = self.dfa.dead_states.get(state) {
-                    panic!("DFABuilder::mark_accept_state(): Attempted to mark dead state ({:?}) as goal state.", state);
+                    panic!("DFABuilder::mark_accept_state(): Attempted to mark dead state ({:?}) as accept state.", state);
                 }
                 self.dfa.accept_states.insert(state.clone());
             }
-            None => panic!("DFABuilder::mark_accept_state(): Attempted to mark non-existent state ({:?}) as a accept state.", state),
+            None => panic!("DFABuilder::mark_accept_state(): Attempted to mark non-existent state ({:?}) as an accept state.", state),
         }
         self
     }
@@ -114,7 +114,7 @@ where
             Some(state) => {
                 if let Some(state) = self.dfa.dead_states.get(state) {
                     panic!(
-                        "DFABuilder::mark_goal_state(): Attempted to mark dead state ({:?}) as goal state.",
+                        "DFABuilder::mark_goal_state(): Attempted to mark dead state ({:?}) as a goal state.",
                         state
                     );
                 }
@@ -122,7 +122,7 @@ where
                 self.dfa.goal_states.insert(state.clone());
             }
             None => panic!(
-                "DFABuilder::mark_goal_state(): Attempted to mark non-existent state ({:?}) as goal state.",
+                "DFABuilder::mark_goal_state(): Attempted to mark non-existent state ({:?}) as a goal state.",
                 state
             ),
         }
@@ -138,7 +138,7 @@ where
                 self.dfa.dead_states.insert(state.clone());
             }
             None => panic!(
-                "DFABuilder::mark_dead_state(): Attempted to mark non-existent state ({:?}) as dead state.",
+                "DFABuilder::mark_dead_state(): Attempted to mark non-existent state ({:?}) as a dead state.",
                 state
             ),
         }
@@ -152,7 +152,7 @@ where
                 self.dfa.current = state.clone();
             }
             None => panic!(
-                "DFABuilder::mark_start_state(): Attempted to mark non-existent state ({:?}) as start state.",
+                "DFABuilder::mark_start_state(): Attempted to mark non-existent state ({:?}) as a start state.",
                 state
             ),
         }
@@ -161,10 +161,10 @@ where
 
     pub fn add_transition(mut self, from: &S, transition: &T, to: &S) -> Self {
         if let Some(state) = self.dfa.dead_states.get(from) {
-            panic!("DFABuilder::add_transition(): From state ({:?}) is a dead state and cannot have transitions.", state);
+            panic!("DFABuilder::add_transition(): From state ({:?}), which is a dead state and all transitions implicitly lead to itself.", state);
         }
         if let Some(state) = self.dfa.goal_states.get(from) {
-            panic!("DFABuilder::add_transition(): From state ({:?}) is a goal state and cannot have transitions.", state);
+            panic!("DFABuilder::add_transition(): From state ({:?}), which is a goal state and all transitions implicitly lead to itself.", state);
         }
         match (self.dfa.states.get(from), self.dfa.states.get(to)) {
             (Some(from), Some(to)) => {
@@ -182,11 +182,11 @@ where
                     });
             }
             (None, _) => panic!(
-                "DFABuilder::add_transition(): From state ({:?}) does not exist in this DFA.",
+                "DFABuilder::add_transition(): From state ({:?}), which does not exist in this DFA.",
                 from
             ),
             (_, None) => panic!(
-                "DFABuilder::add_transition(): To state ({:?}) does not exist in this DFA.",
+                "DFABuilder::add_transition(): To state ({:?}), which does not exist in this DFA.",
                 to
             ),
         }
@@ -200,7 +200,7 @@ where
             );
         }
         if self.dfa.accept_states.is_empty() {
-            panic!("DFABuilder::build(): No accept states were defined. try using mark_accept_state().");
+            panic!("DFABuilder::build(): No accept states were defined. Try using mark_accept_state().");
         }
         let transition_states =
             self.dfa.states.len() - self.dfa.dead_states.len() - self.dfa.goal_states.len();
