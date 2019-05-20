@@ -30,20 +30,23 @@ where
     T: Eq + Hash + Clone + Debug,
 {
     pub fn next(&mut self, transition: &T) {
-        if self.dead_states.get(&self.current).is_some() {
-            return;
-        }
-        if self.goal_states.get(&self.current).is_some() {
-            return;
-        }
         match self.transitions.get(transition) {
-            Some(state_pairs) => {
-                match state_pairs.get(&self.current) {
-                    Some(destination) => self.current = destination.clone(),
-                    None => panic!("Invalid Transition: There is no path defined from state ({:?}) on transition ({:?})", self.current, transition),
+            Some(state_pairs) => match state_pairs.get(&self.current) {
+                Some(destination) => self.current = destination.clone(),
+                None => {
+                    if self.dead_states.get(&self.current).is_some() {
+                        return;
+                    }
+                    if self.goal_states.get(&self.current).is_some() {
+                        return;
+                    }
+                    panic!("DFA::next(): There is no path defined from state ({:?}) on transition ({:?})", self.current, transition);
                 }
-            }
-            None => panic!("Invalid Transition: Attempted to move with unknown transition ({:?})", transition),
+            },
+            None => panic!(
+                "DFA::next(): Attempted to move with unknown transition ({:?})",
+                transition
+            ),
         }
     }
 
@@ -62,12 +65,6 @@ where
     pub fn recognize(&mut self, inputs: impl Iterator<Item = T>) -> Evaluation {
         self.restart();
         for transition in inputs {
-            if self.dead_states.get(&self.current).is_some() {
-                break;
-            }
-            if self.goal_states.get(&self.current).is_some() {
-                break;
-            }
             self.next(&transition);
         }
         self.eval()
