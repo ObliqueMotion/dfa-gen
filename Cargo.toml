@@ -1,0 +1,15 @@
+[package]
+name = "dfa-gen"
+version = "0.1.0"
+authors = ["Erik Nordin <aeketn@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "dfa_gen"
+path = "src/lib.rs"
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+
+[dependencies]
