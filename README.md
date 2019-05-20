@@ -12,7 +12,7 @@ fn main() {
     let q0 = String::from("q0");
     let q1 = String::from("q1");
     let q2 = String::from("q2");
-    let q3 = String::from("DEAD");
+    let q3 = String::from("q3");
 
     let mut dfa = DFABuilder::default()
         .add_state(&q0)
@@ -52,14 +52,14 @@ fn main() {
         "q0",
         "q1",
         "q2",
-        "DEAD"
+        "q3"
     },
     accept_states: {
         "q0"
         "q1",
     },
     dead_states: {
-        "DEAD"
+        "q3"
     },
     goal_states: {},
     transitions: {
@@ -69,7 +69,7 @@ fn main() {
             "q2": "q1",
         },
         'b': {
-            "q0": "DEAD"
+            "q0": "q3"
             "q1": "q2",
             "q2": "q2",
         }
