@@ -62,13 +62,13 @@ where
     pub fn recognize(&mut self, inputs: impl Iterator<Item = T>) -> Evaluation {
         self.restart();
         for transition in inputs {
-            self.next(&transition);
             if self.dead_states.get(&self.current).is_some() {
                 break;
             }
             if self.goal_states.get(&self.current).is_some() {
                 break;
             }
+            self.next(&transition);
         }
         self.eval()
     }
