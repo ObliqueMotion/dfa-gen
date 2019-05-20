@@ -1,2 +1,2 @@
 # dfa-gen
-A Generic Deterministic Finite-State Automata Generator Written in Rust
+A Generic Deterministic Finite-State Automaton Generator Written in Rust
