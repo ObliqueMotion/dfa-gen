@@ -1,4 +1,4 @@
-use dfa_gen::{bits_of, DFABuilder, DFA};
+use dfagen::{bits_of, DFABuilder, DFA};
 
 fn main() {
     let no_one = String::from("1 has not been seen.");
@@ -20,4 +20,17 @@ fn main() {
     dbg!(dfa.recognize_new("001".chars()));
     dbg!(dfa.recognize_new("111".chars()));
 
+    dfa.restart();
+
+    dfa.next(&'0');
+    dbg!(dfa.eval());
+
+    dfa.next(&'0');
+    dbg!(dfa.eval());
+
+    dfa.next(&'1');
+    dbg!(dfa.eval());
+
+    dfa.next(&'0');
+    dbg!(dfa.eval());
 }

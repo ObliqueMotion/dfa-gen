@@ -30,6 +30,12 @@ where
     T: Eq + Hash + Clone + Debug,
 {
     pub fn next(&mut self, transition: &T) {
+        if self.dead_states.get(&self.current).is_some() {
+            return;
+        }
+        if self.goal_states.get(&self.current).is_some() {
+            return;
+        }
         match self.transitions.get(transition) {
             Some(state_pairs) => {
                 match state_pairs.get(&self.current) {
@@ -46,20 +52,20 @@ where
     }
 
     pub fn eval(&self) -> Evaluation {
-        if let Some(_) = self.accept_states.get(&self.current) {
+        if self.accept_states.get(&self.current).is_some() {
             Evaluation::Accept
         } else {
             Evaluation::Reject
         }
     }
 
-    pub fn recognize(&mut self, mut inputs: impl Iterator<Item = T>) -> Evaluation {
-        while let Some(transition) = inputs.next() {
+    pub fn recognize(&mut self, inputs: impl Iterator<Item = T>) -> Evaluation {
+        for transition in inputs {
             self.next(&transition);
-            if let Some(_) = self.dead_states.get(&self.current) {
+            if self.dead_states.get(&self.current).is_some() {
                 break;
             }
-            if let Some(_) = self.goal_states.get(&self.current) {
+            if self.goal_states.get(&self.current).is_some() {
                 break;
             }
         }
@@ -96,7 +102,7 @@ where
 
     pub fn mark_accept_state(mut self, state: &S) -> Self {
         match self.dfa.states.get(state) {
-            Some(state) => { 
+            Some(state) => {
                 if let Some(state) = self.dfa.dead_states.get(state) {
                     panic!("Invalid Accept State: Attempted to mark dead state ({:?}) as goal state.", state);
                 }
@@ -111,12 +117,18 @@ where
         match self.dfa.states.get(state) {
             Some(state) => {
                 if let Some(state) = self.dfa.dead_states.get(state) {
-                    panic!("Invalid Goal State: Attempted to mark dead state ({:?}) as goal state.", state);
+                    panic!(
+                        "Invalid Goal State: Attempted to mark dead state ({:?}) as goal state.",
+                        state
+                    );
                 }
                 self.dfa.accept_states.insert(state.clone());
                 self.dfa.goal_states.insert(state.clone());
             }
-            None => panic!("Invalid Goal State: Attempted to mark non-existent state ({:?}) as goal state.", state),
+            None => panic!(
+                "Invalid Goal State: Attempted to mark non-existent state ({:?}) as goal state.",
+                state
+            ),
         }
         self
     }
@@ -129,7 +141,10 @@ where
                 }
                 self.dfa.dead_states.insert(state.clone());
             }
-            None => panic!("Invalid Dead State: Attempted to mark non-existent state ({:?}) as dead state.", state),
+            None => panic!(
+                "Invalid Dead State: Attempted to mark non-existent state ({:?}) as dead state.",
+                state
+            ),
         }
         self
     }
@@ -188,11 +203,12 @@ where
                 "Failed to Build DFA: No start state was defined. Try using mark_start_state()."
             );
         }
-        if self.dfa.accept_states.len() == 0 {
+        if self.dfa.accept_states.is_empty() {
             panic!("Failed to Build DFA: No accept states were defined. try using mark_accept_state().");
         }
-        let transition_states = self.dfa.states.len() - self.dfa.dead_states.len() - self.dfa.goal_states.len();
-        for (_, state_pairs) in &self.dfa.transitions {
+        let transition_states =
+            self.dfa.states.len() - self.dfa.dead_states.len() - self.dfa.goal_states.len();
+        for state_pairs in self.dfa.transitions.values() {
             if state_pairs.keys().count() < transition_states {
                 panic!("Failed to Build DFA: Not all transition states are fully connectet.");
             }

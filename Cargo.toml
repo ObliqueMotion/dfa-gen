@@ -5,7 +5,7 @@ authors = ["Erik Nordin <aeketn@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "dfa_gen"
+name = "dfagen"
 path = "src/lib.rs"
 
 [[bin]]
