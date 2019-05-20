@@ -3,8 +3,9 @@ A Generic Deterministic Finite-State Automaton Generator Written in Rust
 
 ## Example
 
-![logo](images/example.png)
+![example](images/example.png)
 
+**Code Represntation**
 ```rust
 use dfagen::{DFABuilder, DFA};
 
