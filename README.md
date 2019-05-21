@@ -56,8 +56,8 @@ fn main() {
         "q3"
     },
     accept_states: {
-        "q0"
-        "q1",
+        "q0",
+        "q1"
     },
     dead_states: {
         "q3"
@@ -65,14 +65,14 @@ fn main() {
     goal_states: {},
     transitions: {
         'a': {
-            "q0": "q1"
+            "q0": "q1",
             "q1": "q1",
-            "q2": "q1",
+            "q2": "q1"
         },
         'b': {
-            "q0": "q3"
+            "q0": "q3",
             "q1": "q2",
-            "q2": "q2",
+            "q2": "q2"
         }
     },
     start: Some(
