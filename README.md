@@ -10,10 +10,10 @@ A Generic Deterministic Finite-State Automaton Generator Written in Rust
 use dfagen::DFABuilder;
 
 fn main() {
-    let q0 = String::from("q0");
-    let q1 = String::from("q1");
-    let q2 = String::from("q2");
-    let q3 = String::from("q3");
+    let q0 = "q0";
+    let q1 = "q1";
+    let q2 = "q2";
+    let q3 = "q3";
 
     let mut dfa = DFABuilder::default()
         .add_state(&q0)
