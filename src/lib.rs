@@ -50,6 +50,10 @@ where
         }
     }
 
+    pub fn state(&self) -> S {
+        (*self.current).clone()
+    }
+
     pub fn restart(&mut self) {
         self.current = self.start.as_ref().unwrap().clone();
     }
@@ -143,6 +147,9 @@ where
     }
 
     pub fn mark_start_state(mut self, state: &S) -> Self {
+        if let Some(start) = self.dfa.start {
+            panic!("DFABUilder::mark_start_state(): Attempted to mark state ({:?}) as the start state when the start state ({:?}) has already been defined.", state, start);
+        }
         match self.dfa.states.get(state) {
             Some(state) => {
                 self.dfa.start = Some(state.clone());
@@ -171,7 +178,7 @@ where
                     let transition = transition.clone();
                     let mut state_pairs = HashMap::new();
                     state_pairs.insert(from.clone(), to.clone());
-                    self.dfa.transitions.insert(transition, state_pairs); 
+                    self.dfa.transitions.insert(transition, state_pairs);
                 }
             }
             (None, _) => panic!(
@@ -187,6 +194,9 @@ where
     }
 
     pub fn build(self) -> DFA<S, T> {
+        if self.dfa.states.is_empty() {
+            panic!("DFABuilder::build(): The DFA must have at least one state, but it is empty.");
+        }
         if self.dfa.start.is_none() {
             panic!(
                 "DFABuilder::build(): DFA must have a valid start state. No start state was defined."
@@ -206,9 +216,35 @@ where
     }
 }
 
-pub fn bits_of(x: u128) -> impl Iterator<Item = u8> {
-    format!("{:b}", x)
-        .into_bytes()
-        .into_iter()
-        .map(|b| (b as char).to_digit(10).unwrap() as u8)
+#[macro_export]
+macro_rules! dfa {
+    (
+        states{$(
+            $state:expr
+        ),*};
+        start { $start:expr };
+        marks {
+            accept { $(
+                $accept:expr
+            ),*},
+            dead{$(
+                $dead:expr
+            ),*},
+            goal{$(
+                $goal:expr
+            ),*},
+        };
+        transitions {$(
+            $edge:expr => ($from:expr, $to:expr),
+        )*};
+    ) => {{
+            DFABuilder::default()
+            $(.add_state(&$state))*
+            .mark_start_state(&$start)
+            $(.mark_accept_state(&$accept))*
+            $(.mark_goal_state(&$goal))*
+            $(.mark_dead_state(&$dead))*
+            $(.add_transition(&$from, &$edge, &$to))*
+            .build()
+    }};
 }
